@@ -55,7 +55,7 @@ def application(environ, start_response):
                         <!doctype html>
                         <html>
                                 <head>
-                                    <meta http-equiv="refresh" content="0; url=/wsgi/im/index"/>
+                                    <meta http-equiv="refresh" content="0; url=/wsgi/kscntt/index"/>
                                     <title> redirect login </title>
                                 </head>
                             <body>

@@ -58,7 +58,6 @@ class Module:
         <link data-jsfiddle="common" rel="stylesheet" media="screen" href="{self.js}/handsontable.full.css" type="text/css">
         <!-- the below is only needed for DateCell (uses jQuery UI Datepicker) -->
         <script type="text/javascript" src="{self.js}/jquery-ui.js"></script>
-        <script type="text/javascript" scr="{self.js}/jquery-ui.js"></script>
         <link rel="stylesheet" href="{self.js}/jquery-ui.css" type="text/css">
                     <style data-jsfiddle="common">
                     .handsontable .currentRow {{
@@ -81,7 +80,10 @@ class Module:
         return headlink
 
     def menuhead(self):
-        menuhead = """<nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark">
+        menuhead = """
+        
+        <nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark">
+            <img src="/kscntt/images/vsa_icon.png" style="width:3%;height:auto;" />
                             <ul class="navbar-nav">"""
         return menuhead
     def menufoot(self):

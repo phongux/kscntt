@@ -59,7 +59,7 @@ def get_rows(display, start_w):
     connect = config.conn.Connect()
     con = connect.get_connection()
     cur = con.cursor()
-    cur.execute(f"""select id,ho,ten,update_time from test order by id""")
+    cur.execute(f"""select id,ho,ten,update_time from test order by id limit {display} offset {start_w}""")
     rows = cur.fetchall()
     con.commit()
     cur.close()
@@ -85,38 +85,38 @@ def application(environment, start_response):
         passwd = session['password']
         captcha = session['captcha']
         ps = get_account(user, passwd, captcha)
-        if ps[0][2] > 0:
-            if 'display' not in post:
-                display = 200
+        #if ps[0][2] > 0:
+    if 'display' not in post:
+        display = 10
+    else:
+        display = int(post['display'])
+    if 'page' not in post:
+        page = 1
+    else:
+        page = post['page']
+    start_w = (int(page) - 1) * display
+    rows_count = count_rows()
+    rows = get_rows(display, start_w)
+    sum_page = (int(rows_count[0]) / display) + 1
+    row = []
+    for ro in rows:
+        row.append(list(ro))
+    page = '{"product":'
+    objects_list = []
+    cols = ["id", "ho","ten","update_time"]
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        futures = [executor.submit(convert_row, i, row, cols) for i in range(len(row))]
+        for future in as_completed(futures):
+            try:
+                objects_list.append(future.result())
+            except Exception as exc:
+                logging.error(exc)
             else:
-                display = int(post['display'])
-            if 'page' not in post:
-                page = 1
-            else:
-                page = post['page']
-            start_w = (int(page) - 1) * display
-            rows_count = count_rows()
-            rows = get_rows(display, start_w)
-            sum_page = (int(rows_count[0]) / display) + 1
-            row = []
-            for ro in rows:
-                row.append(list(ro))
-            page = '{"product":'
-            objects_list = []
-            cols = ["id", "ho","ten","update_time"]
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                futures = [executor.submit(convert_row, i, row, cols) for i in range(len(row))]
-                for future in as_completed(futures):
-                    try:
-                        objects_list.append(future.result())
-                    except Exception as exc:
-                        logging.error(exc)
-                    else:
-                        pass
-            page += json.dumps(objects_list)
-            page += ""","sum_page":%s}""" % (int(sum_page))
-        else:
-            page = login.login_again()
+                pass
+    page += json.dumps(objects_list)
+    page += f""","sum_page":{int(sum_page)}, "display": {int(display)}}}"""
+        #else:
+        #    page = login.login_again()
     response = Response(body=page, content_type="text/html", charset="utf8", status="200 OK")
     return response(environment, start_response)
 

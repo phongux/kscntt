@@ -1,23 +1,24 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+
+sys.path.insert(0, "F:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import importlib
 import re
 import json
 import psycopg2
-import config.module
 from datetime import datetime
 import config.sess
 import config.conn
 import config.login
 import config.module
+importlib.reload(config.module)
+
 
 def application(environment, start_response):
     from webob import Request, Response
     request = Request(environment)
     params = request.params
     post = request.POST
-
     module = config.module.Module()
     login = config.login.Login()
     head = module.head()
@@ -45,7 +46,7 @@ def application(environment, start_response):
         cur = con.cursor()
         cur.execute(
             "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-            (user, passwd,captcha))
+            (user, passwd, captcha))
         ps = cur.fetchall()
 
         con.commit()
@@ -253,7 +254,8 @@ def application(environment, start_response):
                 connect = config.conn.Connect()
                 con = connect.get_connection()
                 cur = con.cursor()
-                cur.execute(f"""select tablename,query from settings where account_level ilike '%%{account_level}%%' order by id""")
+                cur.execute(
+                    f"""select tablename,query from settings where account_level ilike '%%{account_level}%%' order by id""")
                 lst = cur.fetchall()
                 con.commit()
                 cur.close()
@@ -376,9 +378,9 @@ def application(environment, start_response):
                         f"delete from {table} where id not in (select max(id) from {table} group by report_date,agent)")
                 page += f"""
                     <br /><br /><br />
-                    <ul class="nav nav-tabs">
+                    <!--<ul class="nav nav-tabs">
                         <li class="active"><a href="{module.control}/account_manager">{table}</a></li>
-                    </ul>
+                    </ul>-->
                     <h2>Table {table} </h2>
                     Order by: {",".join(orderby)}. Sort by: {by}. Hide columns: {",".join(hidecols)}    
                     | Hide filter: {",".join(hidefils)} + {movecols}  
@@ -883,6 +885,7 @@ def application(environment, start_response):
                 page = login.login_again()
     response = Response(body=page, content_type="text/html", charset="utf8", status="200 OK")
     return response(environment, start_response)
+
 
 sess = config.sess.Session()
 session_opts = json.loads(sess.session_opts())

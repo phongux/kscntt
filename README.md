@@ -1,5 +1,6 @@
 #Im
-Inventory Management
+KSCNTT is survey for it services.
+If the border cell is missing. Please change the zoom bigger or small. EX: Ctrl+ or Ctrl- 
   +   Modwsgi
   +  Psycopg2
    + Webob
