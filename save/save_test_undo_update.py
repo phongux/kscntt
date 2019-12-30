@@ -113,39 +113,6 @@ def insert_row(i, table, post, types, inscols):
     cur.close()
     con.close()
 
-
-def updateall_row(i, table, post, types, cols):
-    values = []
-    cols = [col for col in cols if col not in ['update_time']]
-    for colname in cols:
-        if colname == 'account_password':
-            values.append(colname + " = NULLIF('" + hashlib.sha512(
-                post['updateall[%s][%s]' % (i, colname)].encode('utf-8')).hexdigest() + "','')")
-        elif types[colname] == 'integer':
-            values.append(colname +
-                " = NULLIF('" + post['updateall[%s][%s]' % (i, colname)].replace("'", "''") + "','')::integer")
-        elif types[colname] == 'bigint':
-            values.append(colname + " = NULLIF('" + post['updateall[%s][%s]' % (i, colname)].replace("'", "''") + "','')::bigint")
-        elif types[colname] == 'numeric':
-            values.append(colname + " = NULLIF('" + post['updateall[%s][%s]' % (i, colname)].replace("'", "''") + "','')::numeric")
-        elif types[colname] == 'json':
-            values.append(colname + " = NULLIF('" + json.dumps(
-                post['insert[%s][%s]' % (i, colname)].replace("'", "''")) + "','')::json")
-        elif re.search('time' , types[colname]) or re.search('date', types[colname]):
-            values.append(colname + " = NULLIF('" + post['updateall[%s][%s]' % (i, colname)].replace("'", "''") + "','')::timestamp")
-        else:
-            values.append(colname + " = NULLIF('" + post['updateall[%s][%s]' % (i, colname)].replace("'", "''") + "','')")
-
-    logging.info(values)
-    connect = config.conn.Connect()
-    con = connect.get_connection()
-    cur = con.cursor()
-    cur.execute("""update """ + table + """ set """ + ",".join(values) + """, update_time = %s where id = %s""", (datetime.datetime.today(), post['updateall[%s][id]' % (i)].replace("'", "''")))
-    con.commit()
-    cur.close()
-    con.close()
-
-
 def insert_undo(i, table, post, types, inscols):
     values = ()
     for colname in inscols:
@@ -206,14 +173,6 @@ def insert_check(post, table, types, cols):
             with ThreadPoolExecutor(max_workers=1) as executor:
                 futures = [executor.submit(insert_row, i, table, post, types, inscols) for i in
                            range(int(post['leninsert']))]
-                wait(futures)
-
-def updateall_check(post, table, types, cols):
-    if 'lenupdateall' in post:
-        if int(post['lenupdateall']) > 0:
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                futures = [executor.submit(updateall_row, i, table, post, types, cols) for i in
-                           range(int(post['lenupdateall']))]
                 wait(futures)
 
 
@@ -297,7 +256,6 @@ def application(environment, start_response):
                    executor.submit(update_check, post, table, types),
                    executor.submit(insert_check, post, table, types, cols),
                    executor.submit(undo_check, post, table, types, cols),
-                   executor.submit(updateall_check, post, table, types, cols)
                    ]
         wait(futures)
     page = f"""{{"result":"ok", "post":"{str(post)}"}}"""
