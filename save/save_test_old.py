@@ -299,7 +299,7 @@ def application(environment, start_response):
                            executor.submit(updateall_check, post, table, types, cols)
                            ]
                 wait(futures)
-            page = f"""{{"result":"ok", "post":""}}"""
+            page = f"""{{"result":"ok", "post":"{str(post)}"}}"""
         else:
             page = login.login_again()
     response = Response(body=page,

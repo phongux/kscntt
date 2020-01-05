@@ -44,11 +44,11 @@ def get_account(user, passwd, captcha):
     return ps
 
 
-def count_rows():
+def count_rows(table):
     connect = config.conn.Connect()
     con = connect.get_connection()
     cur = con.cursor()
-    cur.execute(f"""select count(*) from test""")
+    cur.execute(f"""select count(*) from {table}""")
     rows_count = cur.fetchone()
     con.commit()
     cur.close()
@@ -56,11 +56,11 @@ def count_rows():
     return rows_count
 
 
-def get_rows(display, start_w):
+def get_rows(display, start_w, table,list_cols_str):
     connect = config.conn.Connect()
     con = connect.get_connection()
     cur = con.cursor()
-    cur.execute(f"""select id,ho,ten,update_time from test order by id limit {display} offset {start_w}""")
+    cur.execute(f"""select {list_cols_str} from {table} order by id limit {display} offset {start_w}""")
     rows = cur.fetchall()
     con.commit()
     cur.close()
@@ -86,39 +86,41 @@ def application(environment, start_response):
         passwd = session['password']
         captcha = session['captcha']
         ps = get_account(user, passwd, captcha)
-        #if ps[0][2] > 0:
-    if 'display' not in post:
-        display = 10
-    else:
-        display = int(post['display'])
-    if 'page' not in post:
-        page = 1
-    else:
-        page = post['page']
-    start_w = (int(page) - 1) * display
-    rows_count = count_rows()
-    rows = get_rows(display, start_w)
-    sum_page = math.ceil(int(rows_count[0]) / display)
-    row = []
-    for ro in rows:
-        row.append(list(ro))
-    page = '{"product":'
-    objects_list = []
-    cols = ["id", "ho", "ten", "update_time"]
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        futures = [executor.submit(convert_row, i, row, cols) for i in range(len(row))]
-        for future in as_completed(futures):
-            try:
-                objects_list.append(future.result())
-            except Exception as exc:
-                logging.error(exc)
+        if ps[0][2] > 0:
+            if 'display' not in post:
+                display = 10
             else:
-                pass
-    page += json.dumps(objects_list)
-    page += f""","sum_page":{int(sum_page)}, "display": {int(display)}, "rows": {int(rows_count[0])}}}"""
-        #else:
-        #    page = login.login_again()
-    response = Response(body=page, content_type="text/html", charset="utf8", status="200 OK")
+                display = int(post['display'])
+            if 'page' not in post:
+                page = 1
+            else:
+                page = post['page']
+            table = post['table']
+            cols = post.getall('cols[]')
+            list_cols_str = ",".join(cols)
+            start_w = (int(page) - 1) * display
+            rows_count = count_rows(table)
+            rows = get_rows(display, start_w, table, list_cols_str)
+            sum_page = math.ceil(int(rows_count[0]) / display)
+            row = []
+            for ro in rows:
+                row.append(list(ro))
+            page = '{"product":'
+            objects_list = []
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                futures = [executor.submit(convert_row, i, row, cols) for i in range(len(row))]
+                for future in as_completed(futures):
+                    try:
+                        objects_list.append(future.result())
+                    except Exception as exc:
+                        logging.error(exc)
+                    else:
+                        pass
+            page += json.dumps(objects_list)
+            page += f""","sum_page":{int(sum_page)}, "display": {int(display)}, "rows": {int(rows_count[0])}}}"""
+        else:
+            page = login.login_again()
+    response = Response(body=page, content_type="application/json", charset="utf8", status="200 OK")
     return response(environment, start_response)
 
 

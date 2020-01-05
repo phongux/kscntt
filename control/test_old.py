@@ -25,9 +25,9 @@ def application(environment, start_response):
     menufoot = module.menufoot()
     save = module.save
     load = module.load
-    page = ""
     # Get the session object from the environ
     session = environment['beaker.session']
+    page = ""
     if 'username' not in session:
         page = login.login_again()
     elif 'password' not in session:
@@ -51,37 +51,6 @@ def application(environment, start_response):
                 display = 10
             else:
                 display = post['display']
-            if 'table' not in post:
-                table = ''
-            else:
-                table = post['table']
-            if 'hidecols' not in post:
-                hidecols = []
-            else:
-                hidecols = post.getall('hidecols')
-            con = connect.get_connection()
-            cur = con.cursor()
-            cur.execute(
-                f"select column_name, data_type from information_schema.columns "
-                f"where table_name = '{table}' ")
-            rws = cur.fetchall()
-            con.commit()
-            cur.close()
-            con.close()
-            cols = [desc[0] for desc in rws if desc[0] not in hidecols]
-            columns = []
-            for colname in cols:
-                if colname == 'account_password':
-                    columns.append({"type": "password"})
-                elif colname == 'account_level':
-                    columns.append({'type': 'numeric', 'allowEmpty': 'false'})
-                elif colname == 'username':
-                    columns.append({'allowEmpty': 'false'})
-                elif colname == 'fid':
-                    columns.append({'type': 'numeric', 'allowEmpty': 'false'})
-                else:
-                    columns.append({})
-
             loadurl = f"""'{load}/load_test'"""
             saveurl = f"""'{save}/save_test'"""
             page = ""
@@ -103,24 +72,8 @@ def application(environment, start_response):
             <br />
             <br />
             <h2>Nhap lieu</h2>
-            <p> Account : {user} , table: {table} </p>
-
+            <p> Account : {user} </p>
             <br />
-            <form method="post" action="">                              
-                <div class="btn-group col-sm-3">
-                    <label class='btn-group' >Table:
-                        <input class='btn-group form-control' list="table" name="table" value=""  onchange='if(this.value != 0) {{ this.form.submit(); }}'>
-                        <datalist id="table">
-                            <option value="account">account</option>
-                            <option value="admin_first_menu">admin_first_menu</option>
-                            <option value="admin_second_menu">admin_second_menu</option>
-                            <option value="second_menu">second_menu</option>
-                            <option value="settings">settings</option>
-                            <option value="danh_muc_kh">danh_muc_kh</option>                            
-                        </datalist>
-                    </label> 
-                </div>  
-            </form>
             <div class="controls">
                 <button name="load" id="load" class="intext-btn">Load</button>
                 <button name="save" id="save" class="intext-btn">Save</button>
@@ -140,8 +93,7 @@ def application(environment, start_response):
                 var $$ = function(id) {{
                     return document.getElementById(id);
                 }},
-                table = '{table}',
-                colu = {cols},
+                colu = ["id", "ho", "ten" ,"update_time"],
                 autoload=0,
                 display = {display},
                 page_number = 1,
@@ -162,8 +114,8 @@ def application(environment, start_response):
                     currentColClassName: 'currentCol',
                     autoWrapRow: true,
                     rowHeaders: true,
-                    colHeaders: colu,
-                    columns: {columns},
+                    colHeaders: ['Id', 'Ho', 'Ten', 'Time'],
+                    columns: [{{}}, {{}}, {{}},{{'readOnly': 'true'}}],
                     colWidths: [50,250,250,250],        
                     manualColumnResize: true,
                     manualRowResize: true,      
@@ -186,7 +138,7 @@ def application(environment, start_response):
                             }}
                             $.ajax({{
                                 url: {saveurl},
-                                data: {{table: table,delete:dellist}}, // returns all cells' data
+                                data: {{delete:dellist}}, // returns all cells' data
                                 dataType: 'json',
                                 type: 'POST',
                                 success: function(res) {{
@@ -223,7 +175,6 @@ def application(environment, start_response):
                                 dataType: 'json',
                                 type: 'POST',
                                 data: {{
-                                    table:table,                                    
                                     insert:insertundo,
                                     lenundo:insertundo.length,
                                     cols: colu
@@ -270,7 +221,6 @@ def application(environment, start_response):
                                     dataType: 'json',
                                     type: 'POST',
                                     data: {{
-                                        table:table,
                                         update:update,
                                         lenupdate:update.length,
                                         cols: colu
@@ -350,7 +300,6 @@ def application(environment, start_response):
                                 dataType: 'json',
                                 type: 'POST',
                                 data: {{
-                                    table:table,
                                     update:update,
                                     lenupdate:update.length,
                                     insert:insert,
@@ -406,7 +355,6 @@ def application(environment, start_response):
                         dataType: 'json',
                         type: 'POST',
                         data: {{
-                            table:table,
                             insert:insert,
                             leninsert:insert.length,
                             updateall:update,
@@ -459,8 +407,6 @@ def application(environment, start_response):
                                 JSON.stringify({{
                                     "display":display,
                                     "page":page_number,
-                                    "table":table,
-                                    "cols":colu
                                 }})
                             ),
                             dataType: 'json',
@@ -506,8 +452,6 @@ def application(environment, start_response):
                                         url: {loadurl},
                                         data: JSON.parse(
                                         JSON.stringify({{
-                                            table:table,
-                                            cols:colu,
                                             "page":num,
                                             "display":display
                                         }})
@@ -535,7 +479,7 @@ def application(environment, start_response):
                     return new Promise(function(resolve, reject){{
                     $.ajax({{
                         url: {saveurl},
-                        data: {{table:table, delete:dellist}}, // returns all cells' data
+                        data: {{delete:dellist}}, // returns all cells' data
                         dataType: 'json',
                         type: 'POST',
                         success: function(res) {{

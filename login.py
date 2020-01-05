@@ -32,7 +32,6 @@ def application(environ, start_response):
 
     r = requests.get(f"{api_url}?secret={secret_key}&response={post.get('g-recaptcha-response')}&remoteip={environ.get('HTTP_HOST')}")
     res = json.loads(r.text)
-    res['success'] == 'True'
     if not 'username' in post or post['username'] == '' or not 'password' in post \
             or post['password'] == '' or res['success'] == False:
         page = login.login_again()
