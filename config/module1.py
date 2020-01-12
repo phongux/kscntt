@@ -84,10 +84,11 @@ class Module:
         
         <nav class="navbar navbar-expand-sm navbar-dark fixed-top bg-dark">
             <img src="/kscntt/images/vsa_icon.png" style="width:3%;height:auto;" />
-                            """
+                            <ul class="navbar-nav">"""
         return menuhead
     def menufoot(self):
-        menufoot = """</nav>"""
+        menufoot = """</ul>
+                    </nav>"""
         return menufoot
 
     def menuadmin(self):
@@ -109,26 +110,27 @@ class Module:
             ps_admin_menu2 = cur.fetchall()
             if len(ps_admin_menu2) > 0:
                 menuadmin += f"""
-                    <div class="dropdown">
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href='{row_admin1[2]}' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {row_admin1[1]}
                             <b class="caret"></b>
                         </a>
-                        <div class="dropdown-menu">"""
+                        <ul class="dropdown-menu">"""
                 for row_admin2 in ps_admin_menu2:
                     menuadmin += f"""
+                        <li class='dropdown-item'>
                             <a class='dropdown-item' href='{row_admin2[1]}'>
                                 {row_admin2[0]}
                             </a>
-                            """
-                menuadmin += """</div></div>"""
+                        </li>"""
+                menuadmin += """</ul></li>"""
             else:
                 menuadmin += f"""
-                    <div class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href='{row_admin1[2]}'>
                             {row_admin1[1]}
                         </a>
-                    </div>"""
+                    </li>"""
         for row1 in ps_menu1:
             if row1[0] == None:
                 id2 = 0
@@ -138,27 +140,27 @@ class Module:
             ps_menu2 = cur.fetchall()
             if len(ps_menu2) > 0:
                 menuadmin += f"""
-                    <div class="nav-item dropdown">
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href='{row1[2]}'>
                             {row1[1]}
                             <b class="caret"></b>
                         </a>"""
-                menuadmin += """<div class="dropdown-menu">"""
+                menuadmin += """<ul class="dropdown-menu">"""
                 for row2 in ps_menu2:
                     menuadmin += f"""
+                        <li class='dropdown-item'>
                             <a  class="dropdown-item" href='{row2[1]}'>
                                 {row2[0]}
                             </a>
-                            """
-                menuadmin += """</div></div>"""
+                        </li>"""
+                menuadmin += """</ul></li>"""
             else:
                 menuadmin += f"""
-                    <div class="nav-item dropdown">
+                    <li class="nav-item">
                         <a class="nav-link" href='{row1[2]}'>
                             {row1[1]}
                         </a>
-                    </div>
-                        """
+                    </li>"""
         con.commit()
         cur.close()
         con.close()
@@ -181,35 +183,28 @@ class Module:
             ps_menu2 = cur.fetchall()
             if len(ps_menu2) > 0:
                 menuuser += f"""
-                    <div class="dropdown">
+                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href='{row1[2]}' aria-haspopup="true" aria-expanded="false">
                             {row1[1]}
                             <b class="caret"></b>
                          </a>"""
-                menuuser += """<div class="dropdown-menu">"""
+                menuuser += """<ul class="dropdown-menu">"""
                 for row2 in ps_menu2:
                     menuuser += f"""
+                        <li class='dropdown-item'>
                             <a class="dropdown-item" href='{row2[1]}'>
                                 {row2[0]}
                             </a>
-                            """
-                menuuser += """</div></div>"""
+                        </li>"""
+                menuuser += """</ul></li>"""
             else:
                 menuuser += f"""
-                    <div class="dropdown-menu">
+                    <li class="nav-item" >
                         <a class="nav-link" href='{row1[2]}'>
                             {row1[1]}
                         </a>
-                    </div>
-                        """
-        menuuser += f"""
-            <div class="dropdown-menu">
-                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href='' aria-haspopup="true" aria-expanded="false">
-                    <b class="caret"></b>
-                    test why what happend
-                </a>
-            </div>
-        """
+                    </li>"""
+
         con.commit()
         cur.close()
         con.close()

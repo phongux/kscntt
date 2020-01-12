@@ -15,16 +15,7 @@ def application(environment, start_response):
     request = Request(environment)
     params = request.params
     post = request.POST
-    module = config.module.Module()
     login = config.login.Login()
-    head = module.head()
-    headlink = module.headlink()
-    menuadmin = module.menuadmin()
-    menuuser = module.menuuser()
-    menuhead = module.menuhead()
-    menufoot = module.menufoot()
-    save = module.save
-    load = module.load
     page = ""
     # Get the session object from the environ
     session = environment['beaker.session']
@@ -46,9 +37,9 @@ def application(environment, start_response):
         con.commit()
         cur.close()
         con.close()
-        if len(ps) > 0:
+        if len(ps) == 2:
             if not 'display' in post:
-                display = 10
+                display = 20
             else:
                 display = post['display']
             if 'table' not in post:
@@ -59,6 +50,15 @@ def application(environment, start_response):
                 hidecols = []
             else:
                 hidecols = post.getall('hidecols')
+            module = config.module.Module(user)
+            head = module.head()
+            headlink = module.headlink()
+            menuadmin = module.menuadmin()
+            menuuser = module.menuuser()
+            menuhead = module.menuhead()
+            menufoot = module.menufoot()
+            save = module.save
+            load = module.load
             con = connect.get_connection()
             cur = con.cursor()
             cur.execute(
@@ -102,14 +102,13 @@ def application(environment, start_response):
             <br />
             <br />
             <br />
-            <h2>Nhap lieu</h2>
             <p> Account : {user} , table: {table} </p>
 
             <br />
             <form method="post" action="">                              
-                <div class="btn-group col-sm-3">
+                <div class="btn-group">
                     <label class='btn-group' >Table:
-                        <input class='btn-group form-control' list="table" name="table" value=""  onchange='if(this.value != 0) {{ this.form.submit(); }}'>
+                        <input class='btn-group form-control' list="table" name="table" value="{table}"  onchange='if(this.value != 0) {{ this.form.submit(); }}'>
                         <datalist id="table">
                             <option value="account">account</option>
                             <option value="admin_first_menu">admin_first_menu</option>
@@ -117,6 +116,17 @@ def application(environment, start_response):
                             <option value="second_menu">second_menu</option>
                             <option value="settings">settings</option>
                             <option value="danh_muc_kh">danh_muc_kh</option>                            
+                        </datalist>
+                    </label> 
+                </div>
+                <div class="btn-group">
+                    <label class='btn-group' >Display:
+                        <input class='btn-group col-sm-4 form-control' list="display" name="display" value="{display}">
+                        <datalist id="display">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="40">40</option>                                    
                         </datalist>
                     </label> 
                 </div>  
@@ -134,7 +144,7 @@ def application(environment, start_response):
                     </span>
                 </strong> 
             </div>
-            <div id="example1" style="width:100%; height: 500px; overflow: hidden"></div>
+            <div id="example1" style="width:100%; height: 520px; overflow: hidden"></div>
             <nav class="demo2"></nav>
             <script>
                 var $$ = function(id) {{
@@ -164,13 +174,13 @@ def application(environment, start_response):
                     rowHeaders: true,
                     colHeaders: colu,
                     columns: {columns},
-                    colWidths: [50,250,250,250],        
+                    //colWidths: [50,250,250,250],        
                     manualColumnResize: true,
                     manualRowResize: true,      
                     autoColumnSize : true,
                     //stretchH: 'all',    
                     minSpareCols: 0,
-                    minSpareRows: 1,
+                    minSpareRows: 0,
                     contextMenu: true,
                     undo:true,
                     redo: true,
@@ -475,8 +485,14 @@ def application(environment, start_response):
                                     data[res.product[i].idha - 1] = row;
                                 }}
                                 $console.text('Data loaded');
-                                hot.loadData(data);
+                                    if(page_number== res.sum_page){{
+                                        hot.updateSettings({{minSpareRows:1}});
+                                    }}
+                                    else{{
+                                        hot.updateSettings({{minSpareRows:0}});
+                                    }};                                
                                 $(".page2").html("<strong>Page <span id='page_number'>"+page_number+"</span> / <span id='total_page'>" + Math.round(res.sum_page)+"</span></strong> | <strong><span id='total_rows'> Rows: " + Math.round(res.rows)+"</span></strong> | <strong><span id='total_rows'> Display: " + Math.round(res.display)+"</span></strong>");
+                                hot.loadData(data);
                                 resolve({{"page_number":page_number,"sum_page":Math.ceil(res.sum_page),"rows":Math.ceil(res.rows),"display":res.display}});
                             }}
                         }});
@@ -501,6 +517,12 @@ def application(environment, start_response):
                                 lastClass: 'last',
                                 firstClass: 'first'
                                 }}).on('page', function(event, num){{
+                                    if(num == parseInt($("#total_page").text())){{
+                                        hot.updateSettings({{minSpareRows:1}});
+                                    }}
+                                    else{{
+                                        hot.updateSettings({{minSpareRows:0}});
+                                    }};
                                     $(".page2").html("<strong>Page <span id='page_number'>"+num+"</span> / <span id='total_page'>" + Math.round(res.sum_page)+"</span></strong> | <strong><span id='total_rows'> Rows: " + Math.round(res.rows)+"</span></strong> | <strong><span id='rows_per_page'> Display: " + Math.round(res.display)+"</span></strong>");
                                     $.ajax({{
                                         url: {loadurl},
