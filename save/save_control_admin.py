@@ -253,18 +253,9 @@ def application(environment, start_response):
         user = session['username']
         passwd = session['password']
         captcha = session['captcha']
-        connect = config.conn.Connect()
-        con = connect.get_connection()
-        cur = con.cursor()
-        cur.execute(
-            "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-            (user, passwd, captcha))
-        ps = cur.fetchall()
-        con.commit()
-        cur.close()
-        con.close()
-
-        if ps[0][2] > 0:
+        connect = config.conn.Connect(user=user, passwd=passwd, captcha=captcha)
+        ps = connect.check_account()
+        if ps[0][2] > 1:
             if 'cols[]' not in post:
                 cols = []
             else:

@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0, "F:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import importlib
 import re
@@ -9,6 +9,15 @@ from datetime import datetime
 import config.sess
 import config.conn
 import config.login
+
+
+sql = f"select select_value from select_value"
+connect = config.conn.Connect(sql=sql)
+ps = connect.get_execute()
+
+print(0)
+
+
 
 def application(environment, start_response):
     from webob import Request, Response

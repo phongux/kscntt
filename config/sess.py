@@ -4,9 +4,9 @@ sys.path.insert(0,"F:/wsgi/kscntt")
 import importlib
 import config.module
 
+module = config.module.Module()
 class Session():
     # Sample:
-    module = config.module.Module()
     project = module.project
     """{
             'session.type': 'file',

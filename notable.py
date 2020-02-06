@@ -16,7 +16,7 @@ def application(environ, start_response):
     # Get the session object from the environ
     session = environ['beaker.session']
     login = config.login.Login()
-    module = config.module.Module()
+
     #Check to see if a value is in the session
     if not 'username' in session:
         page = login.login_again()
@@ -38,6 +38,7 @@ def application(environ, start_response):
             if len(ps) == 0:
                 page = login.login_again()
             else:
+                module = config.module.Module(user=user)
                 head = module.head()
                 headlink = module.headlink()
                 menuadmin = module.menuadmin()

@@ -15,16 +15,7 @@ def application(environment, start_response):
     request = Request(environment)
     params = request.params
     post = request.POST
-    module = config.module.Module()
     login = config.login.Login()
-    head = module.head()
-    headlink = module.headlink()
-    menuadmin = module.menuadmin()
-    menuuser = module.menuuser()
-    menuhead = module.menuhead()
-    menufoot = module.menufoot()
-    save = module.save
-    load = module.load
     # Get the session object from the environ
     session = environment['beaker.session']
 
@@ -41,7 +32,7 @@ def application(environment, start_response):
         cur = con.cursor()
         cur.execute(
             "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-            (user, passwd,captcha))
+            (user, passwd, captcha))
         ps = cur.fetchall()
         con.commit()
         cur.close()
@@ -51,6 +42,15 @@ def application(environment, start_response):
                 display = 200
             else:
                 display = post['display']
+            module = config.module.Module(user=user, account_level=ps[0][2])
+            head = module.head()
+            headlink = module.headlink()
+            menuadmin = module.menuadmin()
+            menuuser = module.menuuser()
+            menuhead = module.menuhead()
+            menufoot = module.menufoot()
+            save = module.save
+            load = module.load
             loadurl = f"""'{load}/load_account_manager'"""
             saveurl = f"""'{save}/save_account_manager'"""
             page = ""

@@ -8,6 +8,8 @@ import collections
 import config.sess
 import logging
 import config.login
+from config.module import Module
+from config.load import Load
 import importlib
 import math
 logging.basicConfig(level=logging.ERROR)
@@ -29,45 +31,6 @@ def convert_row(i, row, cols):
             d[cols[j]] = row[i][j]
     return d
 
-
-def get_account(user, passwd, captcha):
-    connect = config.conn.Connect()
-    con = connect.get_connection()
-    cur = con.cursor()
-    cur.execute(
-        "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-        (user, passwd, captcha))
-    ps = cur.fetchall()
-    con.commit()
-    cur.close()
-    con.close()
-    return ps
-
-
-def count_rows(table):
-    connect = config.conn.Connect()
-    con = connect.get_connection()
-    cur = con.cursor()
-    cur.execute(f"""select count(*) from {table}""")
-    rows_count = cur.fetchone()
-    con.commit()
-    cur.close()
-    con.close()
-    return rows_count
-
-
-def get_rows(display, start_w, table,list_cols_str):
-    connect = config.conn.Connect()
-    con = connect.get_connection()
-    cur = con.cursor()
-    cur.execute(f"""select {list_cols_str} from {table} order by id limit {display} offset {start_w}""")
-    rows = cur.fetchall()
-    con.commit()
-    cur.close()
-    con.close()
-    return rows
-
-
 def application(environment, start_response):
     from webob import Request, Response
     request = Request(environment)
@@ -85,8 +48,11 @@ def application(environment, start_response):
         user = session['username']
         passwd = session['password']
         captcha = session['captcha']
-        ps = get_account(user, passwd, captcha)
-        if ps[0][2] > 0:
+        table = post['table']
+        module = Module(user=user, password=passwd, captcha=captcha, table=table)
+        ps = module.get_account()
+        table_level = module.get_table_account_level()
+        if ps[0][2] > 0 and ps[0][2] >= table_level[0][0]:
             if 'display' not in post:
                 display = 10
             else:
@@ -95,12 +61,12 @@ def application(environment, start_response):
                 page = 1
             else:
                 page = post['page']
-            table = post['table']
             cols = post.getall('cols[]')
             list_cols_str = ",".join(cols)
             start_w = (int(page) - 1) * display
-            rows_count = count_rows(table)
-            rows = get_rows(display, start_w, table, list_cols_str)
+            load = Load(display=display, start_w=start_w, table=table, list_cols_str=list_cols_str)
+            rows_count = load.count_rows()
+            rows = load.get_rows()
             sum_page = math.ceil(int(rows_count[0]) / display)
             row = []
             for ro in rows:
@@ -117,7 +83,7 @@ def application(environment, start_response):
                     else:
                         pass
             page += json.dumps(objects_list)
-            page += f""","sum_page":{int(sum_page)}, "display": {int(display)}, "rows": {int(rows_count[0])}}}"""
+            page += f""","sum_page":{int(sum_page)}, "display": {int(display)}, "rows": {int(rows_count[0])}, "log":"{str(ps)};;;;{str(table_level)}"}}"""
         else:
             page = login.login_again()
     response = Response(body=page, content_type="application/json", charset="utf8", status="200 OK")

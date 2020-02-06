@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0, "F:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import importlib
 import re
@@ -9,7 +9,7 @@ from datetime import datetime
 import config.sess
 import config.conn
 import config.login
-
+importlib.reload(config.module)
 def application(environment, start_response):
     from webob import Request, Response
     request = Request(environment)
@@ -27,18 +27,10 @@ def application(environment, start_response):
         user = session['username']
         passwd = session['password']
         captcha = session['captcha']
-        connect = config.conn.Connect()
-        con = connect.get_connection()
-        cur = con.cursor()
-        cur.execute(
-            "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-            (user, passwd,captcha))
-        ps = cur.fetchall()
-        con.commit()
-        cur.close()
-        con.close()
-        if len(ps) == 2:
-            if not 'display' in post:
+        connect = config.conn.Connect(user=user, passwd=passwd, captcha=captcha)
+        ps = connect.check_account()
+        if ps[0][2] == 2:
+            if 'display' not in post:
                 display = 20
             else:
                 display = post['display']
@@ -50,7 +42,8 @@ def application(environment, start_response):
                 hidecols = []
             else:
                 hidecols = post.getall('hidecols')
-            module = config.module.Module(user)
+            module = config.module.Module(user=user, account_level=ps[0][2])
+            table_names = module.get_table_name()
             head = module.head()
             headlink = module.headlink()
             menuadmin = module.menuadmin()
@@ -82,8 +75,8 @@ def application(environment, start_response):
                 else:
                     columns.append({})
 
-            loadurl = f"""'{load}/load_test'"""
-            saveurl = f"""'{save}/save_test'"""
+            loadurl = f"""'{load}/load_control_admin'"""
+            saveurl = f"""'{save}/save_control_admin'"""
             page = ""
             page += head
             page += "<title>Control</title>"
@@ -103,20 +96,15 @@ def application(environment, start_response):
             <br />
             <br />
             <p> Account : {user} , table: {table} </p>
-
             <br />
             <form method="post" action="">                              
                 <div class="btn-group">
                     <label class='btn-group' >Table:
-                        <input class='btn-group form-control' list="table" name="table" value="{table}"  onchange='if(this.value != 0) {{ this.form.submit(); }}'>
-                        <datalist id="table">
-                            <option value="account">account</option>
-                            <option value="admin_first_menu">admin_first_menu</option>
-                            <option value="admin_second_menu">admin_second_menu</option>
-                            <option value="second_menu">second_menu</option>
-                            <option value="settings">settings</option>
-                            <option value="danh_muc_kh">danh_muc_kh</option>                            
-                        </datalist>
+                        <input class='btn-group form-control' list="table" name="table" value=""  onchange='if(this.value != 0) {{ this.form.submit(); }}'>
+                        <datalist id="table">"""
+            for tablename in table_names:
+                page += f"""<option value="{tablename[0]}">{tablename[0]}</option>"""
+            page += f"""</datalist>
                     </label> 
                 </div>
                 <div class="btn-group">
@@ -183,6 +171,13 @@ def application(environment, start_response):
                     minSpareRows: 0,
                     contextMenu: true,
                     undo:true,
+                    cells: function(row, col, prop) {{
+                        var cellProperties = {{}};
+                            if (col == colu.indexOf("id") || col == colu.indexOf("update_time")) {{
+                                cellProperties.readOnly = 'true'
+                            }}
+                        return cellProperties
+                    }},
                     redo: true,
                     beforeRedo: function(action){{
                         if (!autosave.checked) {{
@@ -371,6 +366,9 @@ def application(environment, start_response):
                                     if (res.result === 'ok') {{
                                         autosaveNotification = setTimeout(function () {{
                                             $console.text('Update: '+update.length + ' | Insert: ' + insert.length + ' | Changes will be autosaved ');
+                                            if (insert.length > 0){{
+                                                $("#load").click();
+                                            }};
                                         }}, 500);
                                     }}
                                     else{{
@@ -485,7 +483,7 @@ def application(environment, start_response):
                                     data[res.product[i].idha - 1] = row;
                                 }}
                                 $console.text('Data loaded');
-                                    if(page_number== res.sum_page){{
+                                    if(page_number== res.sum_page || res.sum_page == 0){{
                                         hot.updateSettings({{minSpareRows:1}});
                                     }}
                                     else{{
