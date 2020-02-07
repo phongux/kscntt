@@ -105,7 +105,7 @@ def application(environ, start_response):
             <br />
             <br />"""
             page += f"""<p><strong>Yêu cầu Mới</strong></p>
-                <form method="post" action="" enctype="multipart/form-data">
+                <form method="post" action="../save/save_request_detail" enctype="multipart/form-data">
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputKieuYeuCau">Kiểu yêu cầu</label>
@@ -115,7 +115,7 @@ def application(environ, start_response):
                         </div>
                         <div class="form-group col-md-6">
                             <label for="inputCapDo">Cấp độ</label>
-                            <select id="inputCapDo" class="form-control">
+                            <select id="inputCapDo" class="form-control" name='cap_do'>
                                 {cap_do}
                             </select>
                         </div>
@@ -123,13 +123,13 @@ def application(environ, start_response):
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputCheDo">Chế độ</label>
-                            <select id="inputCheDo" class="form-control">
+                            <select id="inputCheDo" class="form-control" name='che_do'>
                                 {che_do}
                             </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="inputTrangThai">Trạng Thái</label>
-                            <select id="inputTrangThai" class="form-control">
+                            <select id="inputTrangThai" class="form-control" name='trang_thai'>
                                 {trang_thai}
                             </select>
                         </div>
@@ -137,13 +137,13 @@ def application(environ, start_response):
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputNguoiYeuCau">Người Yêu Cầu</label>
-                            <input class='form-control' list="nguoiYeuCau" name="table" value="" />
+                            <input class='form-control' list="nguoiYeuCau" name="nguoi_yeu_cau" value="" />
                             <datalist id="nguoiYeuCau">
                                 {nguoi_yeu_cau}
                         </div>
                         <div class="form-group col-md-6">
                             <label for="inputNhom">Nhóm</label>
-                            <select id="inputNhom" class="form-control">
+                            <select id="inputNhom" class="form-control" name='nhom'>
                                 {nhom}
                             </select>
                         </div>
@@ -157,28 +157,28 @@ def application(environ, start_response):
                         </div>
                         <div class="form-group col-md-6">
                             <label for="inputLoaiDichVu">Loại dịch vụ</label>
-                            <select id="inputLoaiDichVu" class="form-control">
+                            <select id="inputLoaiDichVu" class="form-control" name='loai_dich_vu'>
                                 {loai_dich_vu}
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="inputChuDe">Chủ đề</label>
-                        <input type="text" class="form-control" id="inputChuDe" placeholder="NămThángNgày">
+                        <input type="text" class="form-control" id="inputChuDe" placeholder="NămThángNgày" name="chu_de">
                     </div>
                     <div class="form-group">
                         <label for="inputMoTa">Mô tả</label>
-                        <textarea class="summernote" name="editordata"></textarea>
+                        <textarea class="summernote" name="mo_ta"></textarea>
                     </div> 
                     <div class="form-group">
                         <label for="inputUpload">Các phần đính kèm</label>
-                        <input type="file" class="form-control" multiple="multiple">
+                        <input type="file" class="form-control" multiple="multiple" name='file_dinh_kem'>
                     </div>
                     <div class="form-group">
                         <label for="inputHuongXuLy">Hướng xử lý</label>
                         <textarea class="summernote" name="huong_xu_ly"></textarea>
                     </div> 
-                    <button type="submit" class="btn btn-primary">Sign in</button>
+                    <button type="submit" class="btn btn-primary">Thêm yêu cầu</button>
                 </form>
             """
 
