@@ -17,3 +17,13 @@ if you debug in pycharm do not need 2 line below
 * We have file httpd.conf example for win and ubuntu in im\setup\apache_config\apache_window, im\setup\apache_config\apache_ubuntu folder
 * In future, we will make a video how to configure apache with mod_wsgi on window if we have free time.
 * We sorry about less document, so in the future if we have more free time , we will make document completly.
+
+May be need set python path
+
+# Linux & OSX
+export PYTHONPATH=$HOME/dirWithScripts/:$PYTHONPATH
+
+# Windows
+set PYTHONPATH=C:\path\to\dirWithScripts\;%PYTHONPATH%
+
+set PYTHONPATH=D:\wsgi\kscntt\;%PYTHONPATH%

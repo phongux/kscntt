@@ -1,10 +1,10 @@
 #session
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0,"d:/wsgi/kscntt")
 import importlib
 import config.module
-
 module = config.module.Module()
+
 class Session():
     # Sample:
     project = module.project

@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0,"d:/wsgi/kscntt")
 import config.module
 
 class Login:

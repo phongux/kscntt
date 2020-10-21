@@ -85,7 +85,8 @@ def application(environment, start_response):
                 'nhom': {'editor': 'select', 'selectOptions': nhom},
                 'loai_dich_vu': {'editor': 'select', 'selectOptions': loai_dich_vu},
                 'nguoi_yeu_cau': {'type': 'autocomplete', 'source': nguoi_yeu_cau},
-                'ky_thuat': {'type': 'autocomplete', 'source': ky_thuat}
+                'ky_thuat': {'type': 'autocomplete', 'source': ky_thuat},
+                'view': {'renderer': 'safeHtmlRenderer'}
             }
             columns = []
             for colname in cols:
@@ -93,7 +94,7 @@ def application(environment, start_response):
                     columns.append(type_config.get(colname))
                 else:
                     columns.append({})
-
+            columns.append({})
             if ps[0][4] == 'kh':
                 readonly = f"""hot.getDataAtCell(row,colu.indexOf('nguoi_yeu_cau')) != '{ps[0][0]}' && hot.getDataAtCell(row,colu.indexOf('nguoi_yeu_cau')) != null || col == colu.indexOf("ngay") || col == colu.indexOf("update_time") || col == colu.indexOf("nguoi_yeu_cau")|| col == colu.indexOf("huong_xu_ly") || col == colu.indexOf("id")"""
                 minSpareRows = ''
@@ -503,6 +504,7 @@ def application(environment, start_response):
                                     for(var m in colu){{
                                         row[m] = res.product[i][colu[m]];
                                     }}
+                                    row.push("<a href='/wsig/kscntt/control/edit_request_detail?table={table}&id="+row[0] + "'/> view</a>");
                                     data[res.product[i].idha - 1] = row;
                                 }}
                                 $console.text('Data loaded');
@@ -608,6 +610,50 @@ def application(environment, start_response):
                             }}
                         return cellProperties
                     }}}});
+                // original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+                function strip_tags(input, allowed) {{
+                    var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi,
+                    commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+                
+                    // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+                     allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join('');
+                
+                    return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) {{
+                        return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : '';
+                    }});
+                }}
+                
+                function safeHtmlRenderer(instance, td, row, col, prop, value, cellProperties) {{
+                    var escaped = Handsontable.helper.stringify(value);
+                    escaped = strip_tags(escaped, '<em><b><strong><a><big>'); //be sure you only allow certain HTML tags to avoid XSS threats (you should also remove unwanted HTML attributes)
+                    td.innerHTML = escaped;
+                
+                    return td;
+                }}
+                
+                function coverRenderer (instance, td, row, col, prop, value, cellProperties) {{
+                    var escaped = Handsontable.helper.stringify(value),
+                        img;
+                
+                    if (escaped.indexOf('http') === 0) {{
+                        img = document.createElement('IMG');
+                        img.src = value;
+                
+                    Handsontable.dom.addEvent(img, 'mousedown', function (e){{
+                        e.preventDefault(); // prevent selection quirk
+                    }});
+                
+                    Handsontable.dom.empty(td);
+                    td.appendChild(img);
+                  }}
+                  else {{
+                        // render as text
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                    }}
+                
+                    return td;
+                }}
+
                 </script>
             </body>
             </html>"""

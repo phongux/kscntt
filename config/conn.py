@@ -1,7 +1,7 @@
 import sys
-sys.path.insert(0, "F:/wsgi/kscntt")
+sys.path.insert(0, "d:/wsgi/kscntt")
+
 import psycopg2
-import hashlib
 class Connect:
 
     def __init__(self, user=None, passwd=None, captcha=None, sql=None,  *args, **kwargs):
@@ -27,6 +27,19 @@ class Connect:
         con.close()
         return ps
 
+
+    def get_acount(self):
+        con = psycopg2.connect(self.conn)
+        cur = con.cursor()
+        cur.execute("select username from account ")
+        ps = cur.fetchall()
+        con.commit()
+        cur.close()
+        con.close()
+        return ps
+
+
+
     def run_execute(self):
         con = psycopg2.connect(self.conn)
         cur = con.cursor()
@@ -44,5 +57,6 @@ class Connect:
         cur.close()
         con.close()
         return ps
+
 
 

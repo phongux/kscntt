@@ -12,7 +12,10 @@ importlib.reload(config.conn)
 importlib.reload(config.module)
 
 def application(environ, start_response):
-    from webob import Response
+    from webob import Response, Request
+    request = Request(environ)
+    post = request.POST
+    params = request.params
     page = ""
     # Get the session object from the environ
     session = environ['beaker.session']
@@ -58,14 +61,15 @@ def application(environ, start_response):
             list_ky_thuat = [item[0].strip() for item in load_all.get_ky_thuat()]
             load_all.option_select = list_ky_thuat
             ky_thuat = load_all.convert_option()
+            title = params.get('title')
             page = ""
             page += head
-            page += """
+            page += f"""
             <head>
                 <meta charset="UTF-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                <title>New request</title>
+                <title>New request </title>
                 <!-- include jquery -->
                 <script src="//localhost/kscntt/js/jquery.js"></script>
                 <!-- include libs stylesheets-->
@@ -79,13 +83,22 @@ def application(environ, start_response):
                 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>   
                 <!--<link rel="stylesheet" href="examples/example.css">-->
                 <script>
-                    $(document).ready(function() {
+                    $(document).ready(function() {{
                         $('.js-example-basic-multiple').select2();
-                    });
+                    }});
                     $(document).ready(function() {{
                         $('.summernote').summernote();
-                    }});                    
+                    }});
                 </script>
+                <style>
+                #content #main-content input[type=text]{{
+                    border: 1px solid #ccc;
+                    border: 0;
+                    height: 40px;
+                    padding-left: 10px;
+                    outline: 0;
+                }}
+                </style>
             </head>
             """
             page += \
@@ -137,7 +150,7 @@ def application(environ, start_response):
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputNguoiYeuCau">Người Yêu Cầu</label>
-                            <input class='form-control' list="nguoiYeuCau" name="nguoi_yeu_cau" value="" />
+                            <input class='form-control' list="nguoiYeuCau" name="nguoi_yeu_cau" value="" required/>
                             <datalist id="nguoiYeuCau">
                                 {nguoi_yeu_cau}
                         </div>
@@ -151,7 +164,7 @@ def application(environ, start_response):
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputKyThuat">Kỹ Thuật</label>
-                            <select class="form-control js-example-basic-multiple " name="ky_thuat" multiple="multiple">
+                            <select class="form-control js-example-basic-multiple " name="ky_thuat" multiple="multiple" required>
                                 {ky_thuat}
                             </select>
                         </div>
@@ -164,7 +177,7 @@ def application(environ, start_response):
                     </div>
                     <div class="form-group">
                         <label for="inputChuDe">Chủ đề</label>
-                        <input type="text" class="form-control" id="inputChuDe" placeholder="NămThángNgày" name="chu_de">
+                        <input type="text" class="form-control" id="inputChuDe" placeholder="NămThángNgày" name="chu_de" required />
                     </div>
                     <div class="form-group">
                         <label for="inputMoTa">Mô tả</label>
@@ -172,7 +185,7 @@ def application(environ, start_response):
                     </div> 
                     <div class="form-group">
                         <label for="inputUpload">Các phần đính kèm</label>
-                        <input type="file" class="form-control" multiple="multiple" name='file_dinh_kem'>
+                        <input type="file" class="form-control" name='file_dinh_kem' multiple>
                     </div>
                     <div class="form-group">
                         <label for="inputHuongXuLy">Hướng xử lý</label>

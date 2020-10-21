@@ -55,16 +55,8 @@ def application(environment, start_response):
         captcha = session['captcha']
         id = session['id']
         table = 'account'
-        connect = config.conn.Connect()
-        con = connect.get_connection()
-        cur = con.cursor()
-        cur.execute(
-            "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s and id=%s ",
-            (user, passwd, captcha, id))
-        ps = cur.fetchall()
-        con.commit()
-        cur.close()
-        con.close()
+        module = config.module.Module(user=user, password=passwd)
+        ps = module.get_account()
         if ps[0][2] > 0:
             update_rows(post, table, user,id)
             page = """{"result":"ok"}"""

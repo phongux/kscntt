@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "F:/wsgi/kscntt")
+sys.path.insert(0, "d:/wsgi/kscntt")
 from config.module import Module
 
 def application(environment, start_response):

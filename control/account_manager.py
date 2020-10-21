@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0,"d:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import importlib
 import re
@@ -27,16 +27,8 @@ def application(environment, start_response):
         user = session['username']
         passwd = session['password']
         captcha = session['captcha']
-        connect = config.conn.Connect()
-        con = connect.get_connection()
-        cur = con.cursor()
-        cur.execute(
-            "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-            (user, passwd, captcha))
-        ps = cur.fetchall()
-        con.commit()
-        cur.close()
-        con.close()
+        module = config.module.Module(user=user, password=passwd)
+        ps = module.get_account()
         if len(ps) > 0:
             if not 'display' in post:
                 display = 200

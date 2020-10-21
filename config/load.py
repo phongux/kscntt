@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.ERROR)
 
 class Load:
 
-    def __init__(self, i=None, row=None, cols=None, table=None, display=None, start_w=None, list_cols_str=None, tablename=None, columnname=None, option_select=None, *args, **kwargs):
+    def __init__(self, i=None, row=None, cols=None, table=None, display=None, start_w=None, list_cols_str=None, tablename=None, columnname=None, option_select=None, selected=[], link =[], *args, **kwargs):
         self.i = i
         self.row = row
         self.cols = cols
@@ -26,6 +26,8 @@ class Load:
         self.tablename= tablename
         self.columnname= columnname
         self.option_select = option_select
+        self.selected = selected
+        self.link = link
 
     def count_rows(self):
         connect = config.conn.Connect()
@@ -86,13 +88,23 @@ class Load:
     def get_option_select(self):
         options = ""
         for item in self.get_value_option():
-            options += f"""<option value="{item}">{item}</option>"""
+            if item in self.selected:
+                options += f"""<option value="{item}" selected='selected'>{item}</option>"""
+            else:
+                options += f"""<option value="{item}">{item}</option>"""
         return options
 
     def convert_option(self):
         options = ""
         for item in self.option_select:
-            options += f"""<option value="{item}">{item}</option>"""
-        options += f"""</datalist>"""
-
+            if item in self.selected:
+                options += f"""<option value="{item}" selected='selected'>{item}</option>"""
+            else:
+                options += f"""<option value="{item}">{item}</option>"""
         return options
+
+    def convert_link(self):
+        href = ""
+        for item in self.link:
+            href += f"""<a href='{item}'>{item.split('/')[-1]}</a>; """
+        return href

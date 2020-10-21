@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0,"d:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import json
 import config.sess

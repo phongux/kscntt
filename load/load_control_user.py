@@ -63,6 +63,7 @@ def application(environment, start_response):
                 page = post['page']
             cols = post.getall('cols[]')
             list_cols_str = ",".join(cols)
+            list_cols_str += f",'<a href=/wsgi/kscntt/control/edit_request_detail?table={table}&id='||id||' />' as view"
             start_w = (int(page) - 1) * display
             load = Load(display=display, start_w=start_w, table=table, list_cols_str=list_cols_str)
             rows_count = load.count_rows()

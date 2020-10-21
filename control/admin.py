@@ -1,6 +1,5 @@
 import sys
-
-sys.path.insert(0, "F:/wsgi/kscntt")
+sys.path.insert(0, "d:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import importlib
 import re
@@ -11,7 +10,6 @@ import config.sess
 import config.conn
 import config.login
 import config.module
-importlib.reload(config.module)
 
 
 def application(environment, start_response):

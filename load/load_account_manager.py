@@ -8,6 +8,7 @@ import collections
 import config.sess
 import logging
 import config.login
+import config.module
 import importlib
 logging.basicConfig(level=logging.ERROR)
 
@@ -27,20 +28,6 @@ def convert_row(i, row, cols):
         else:
             d[cols[j]] = row[i][j]
     return d
-
-
-def get_account(user, passwd, captcha):
-    connect = config.conn.Connect()
-    con = connect.get_connection()
-    cur = con.cursor()
-    cur.execute(
-        "select username,account_password,account_level from account where username=%s and account_password=%s and captcha=%s ",
-        (user, passwd, captcha))
-    ps = cur.fetchall()
-    con.commit()
-    cur.close()
-    con.close()
-    return ps
 
 
 def count_rows(user):
@@ -85,8 +72,8 @@ def application(environment, start_response):
         user = session['username']
         passwd = session['password']
         captcha = session['captcha']
-        table = 'cau_hoi_riasec'
-        ps = get_account(user, passwd, captcha)
+        module = config.module.Module(user=user, password=passwd)
+        ps = module.get_account()
         if ps[0][2] > 0:
             if 'display' not in post:
                 display = 200

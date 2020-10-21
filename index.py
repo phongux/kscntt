@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "F:/wsgi/kscntt")
+sys.path.insert(0, "d:/wsgi/kscntt")
 from beaker.middleware import SessionMiddleware
 import json
 import importlib
@@ -7,8 +7,8 @@ import config.sess
 import config.login
 import config.conn
 import config.module
-importlib.reload(config.conn)
-importlib.reload(config.module)
+#importlib.reload(config.conn)
+#importlib.reload(config.module)
 
 def application(environ, start_response):
     from webob import Response

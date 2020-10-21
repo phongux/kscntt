@@ -1,9 +1,9 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0,"D:/wsgi/kscntt")
 import config.conn
 import hashlib
-import importlib
-importlib.reload(config.conn)
+#import importlib
+#importlib.reload(config.conn)
 
 class Module:
 
@@ -52,7 +52,7 @@ class Module:
     def headlink(self):
         headlink = f"""
         
-        <link rel="shortcut icon" href="http://localhost/favicon2.ico" />
+        <link rel="shortcut icon" href="/favicon2.ico" />
         <script type="text/javascript" src="{self.js}/jquery.js"></script>
         <script type="text/javascript" data-jsfiddle="common" src="{self.js}/handsontable.full.js"></script>
         <link data-jsfiddle="common" rel="stylesheet" media="screen" href="{self.js}/handsontable.full.css" type="text/css">
@@ -239,7 +239,7 @@ class Module:
                 menuuser += """</div></div>"""
             else:
                 menuuser += f"""
-                    <div class="dropdown-menu">
+                    <div class="nav-item dropdown">
                         <a class="nav-link" href='{row1[2]}'>
                             {row1[1]}
                         </a>

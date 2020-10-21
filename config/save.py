@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,"F:/wsgi/kscntt")
+sys.path.insert(0,"d:/wsgi/kscntt")
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from beaker.middleware import SessionMiddleware
 import config.conn

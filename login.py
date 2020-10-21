@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import sys
-sys.path.insert(0, """F:/wsgi/kscntt""")
+sys.path.insert(0, """D:/wsgi/kscntt""")
 from beaker.middleware import SessionMiddleware
 import json
 import requests
 import hashlib
-import time
 import config.conn
 import config.sess
 import config.login
