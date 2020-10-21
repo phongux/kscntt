@@ -19,7 +19,7 @@ def application(environment, start_response):
                 <title> Login </title>
             </head>
         <body>
-            <p> test %s</p>
+            <p> test %s test</p>
         </body>
     </html>"""%str(accounts)
 
