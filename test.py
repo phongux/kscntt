@@ -1,9 +1,8 @@
-#! c:/python39/python
+#!/usr/bin/env python3
 import sys
 import os
-sys.path.insert(0, "d:/wsgi/kscntt")
-lib_path = os.path.abspath(os.path.join('config'))
-sys.path.append(lib_path)
+sys.path.append( "/var/www/wsgi-scripts/kscntt/config")
+
 
 import config.conn
 
