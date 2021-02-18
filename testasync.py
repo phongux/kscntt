@@ -2,17 +2,15 @@ import asyncio
 import asyncpg
 
 async def run():
-    conn= await asyncpg.connect(user='postgres',password='12345678',database='kscntt',host='localhost')
+    conn = await asyncpg.connect(user='postgres',password='RaP202@RaP',database='kscntt',host='localhost')
     values = await conn.fetch('select *from account')
     await conn.close()
     return values
 
 
-def application(environment, start_response):
+async def application(environment, start_response):
     from webob import Response
-    loop = asyncio.get_event_loop()
-    test = loop.run_until_complete(run())
-
+    test = await run()
     page = f"""
         <!doctype html>
         <html>
@@ -20,7 +18,7 @@ def application(environment, start_response):
                 <title> Login </title>
             </head>
         <body>
-            <p> test {test[0]['username']}</p>
+            <p> test </p>
         </body>
     </html>"""
 
@@ -29,3 +27,5 @@ def application(environment, start_response):
                         charset="utf8",
                         status="200 OK")
     return response(environment, start_response)
+
+asyncio.run(application(environment='',start_response=''))

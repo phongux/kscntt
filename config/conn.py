@@ -1,11 +1,11 @@
 import sys
-sys.path.insert(0, "d:/wsgi/kscntt")
+#sys.path.append( "D:\\backup_I\\wsgi\\kscntt")
 
 import psycopg2
 class Connect:
 
     def __init__(self, user=None, passwd=None, captcha=None, sql=None,  *args, **kwargs):
-        self.conn = "dbname=kscntt user=postgres password=12345678 host=localhost port=5432"
+        self.conn = "dbname=kscntt user=postgres password=RaP202@RaP host=localhost port=5432"
         self.user = user
         self.passwd = passwd
         self.captcha = captcha

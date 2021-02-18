@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
-sys.path.append( "/var/www/wsgi-scripts/kscntt/config")
-
+#sys.path.append( "D:\\backup_I\\wsgi\\kscntt")
 
 import config.conn
 
@@ -20,7 +19,7 @@ def application(environment, start_response):
         <body>
             <p> test %s test</p>
         </body>
-    </html>"""%str(accounts)
+    </html>"""
 
     response = Response(body=page,
                         content_type="text/html",
